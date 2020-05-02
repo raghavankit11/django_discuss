@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaultfilters import register
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -17,6 +18,16 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
 
+    @property
+    def is_subscribed_to_user2(self, user):
+        is_subscribed = self.subscriptions.filter(user__exact=user).exists()
+        return is_subscribed
+
+    @register.filter
+    def subscribed_to_users(self, user):
+        users = self.subscriptions.filter(user__exact=user)
+        return users
+
 
 class Comment(models.Model):
     content = models.TextField()
@@ -30,5 +41,11 @@ class Comment(models.Model):
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.post.pk})
+
+
+class Subscription(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='subscriptions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+
 
 

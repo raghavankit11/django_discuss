@@ -24,7 +24,16 @@
     <p class="article-content">{{ post.content }}</p>
   </div>
   <div class="full-block small padding-top-10">
-      <div class="float-left " style="font-weight: bold" >Comments</div>
+      <div class="float-left " style="font-weight: bold">Comments</div>
+      <div class="float-left " style="font-weight: bold;margin-left:20px;">
+        <a href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
+        <a href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
+      </div>
+      <div class="float-left" style="margin-left:10px;">
+        {% for s in post.subscriptions.all   %}
+            {{s.user}}
+        {% endfor %}
+      </div>
       <div class="float-right">
           <a href="{% url 'post-comment-create' post_id=post.id %}">Add</a>
       </div>
@@ -38,4 +47,34 @@
     </div>
   {% endif %}
   </div>
+
 </article>
+<script type="application/javascript">
+    function subscribeMe(postId, csrfToken)
+    {
+        subscriptionUrl = "/post/" + postId +"/subscribe";
+        //console.info('subscriptionUrl', subscriptionUrl);
+        $.ajax({
+            url: subscriptionUrl,
+            type: "POST",
+            data: {  csrfmiddlewaretoken: csrfToken, //django needs this
+                     data_item: {'post_id':postId}},
+            timeout:0,
+            success: function(data){alert(data.result);}
+        });
+    }
+
+    function unSubscribeMe(postId, csrfToken)
+    {
+        subscriptionUrl = "/post/" + postId +"/unsubscribe";
+
+        $.ajax({
+            url: subscriptionUrl,
+            type: "POST",
+            data: {  csrfmiddlewaretoken: csrfToken, //django needs this
+                     data_item: {'post_id':postId}},
+            timeout:0,
+            success: function(data){alert(data.result);}
+        });
+    }
+</script>
