@@ -10,7 +10,7 @@
         {% endif %}
         </div>
         <div class="float-right">
-            <small class="text-muted" styl    e="float:right;">{{ comment.date_posted|date:"F d, Y P" }}</small>
+            <small class="text-muted" style="float:right;">{{ comment.date_posted|date:"F d, Y P" }}</small>
         </div>
     </div>
     {% if comment.author == user and editable == True %}
