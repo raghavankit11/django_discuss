@@ -1,5 +1,5 @@
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.views.generic import (
@@ -9,7 +9,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Post
+from .models import Post#, Comment
 
 
 def home(request):
@@ -64,6 +64,16 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user == post.author:
             return True
         return False
+
+
+# class CommentCreateView(LoginRequiredMixin, CreateView):
+#     model = Comment
+#     fields = ['content', 'anonymous']
+#
+#     def form_valid(self, form):
+#         form.instance.author = self.request.user
+#         #form.instance.post = self.request.posts
+#         return super().form_valid(form)
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

@@ -1,0 +1,34 @@
+<article class="media content-section">
+  {% if post.anonymous %}
+    <img class="rounded-circle article-img" src="/media/profile_pics/anonymous.png">
+  {% else %}
+    <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+  {% endif %}
+  <div class="media-body" style="width:100%">
+    <div class="article-metadata">
+        {% if post.anonymous %}
+            Anonymous User
+        {% else %}
+            <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+        {% endif %}
+      <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+      {% if post.author == user and editable == True %}
+          <div>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
+            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
+          </div>
+      {% endif %}
+    </div>
+    <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+    <p class="article-content">{{ post.content }}</p>
+    {% if post.comments.size  %}
+    <hr>
+    <span>Comments</span>
+      {% for comment in post.comments %}
+        <p class="article-content">
+            {{ comment.content }}
+        </p>
+      {% endfor %}
+    {% endif %}
+  </div>
+</article>
