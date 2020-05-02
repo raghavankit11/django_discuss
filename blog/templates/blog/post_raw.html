@@ -4,14 +4,15 @@
   {% else %}
     <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
   {% endif %}
-  <div class="media-body" style="width:100%">
+  <div class="media-body full-block">
+  <div class="full-block">
     <div class="article-metadata">
         {% if post.anonymous %}
             Anonymous User
         {% else %}
             <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
         {% endif %}
-      <small class="text-muted" style="float:right;">{{ post.date_posted|date:"F d, Y P" }}</small>
+      <small class="text-muted" styl    e="float:right;">{{ post.date_posted|date:"F d, Y P" }}</small>
       {% if post.author == user and editable == True %}
           <div>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
@@ -21,14 +22,20 @@
     </div>
     <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
     <p class="article-content">{{ post.content }}</p>
-    {% if post.comments.size  %}
-    <hr>
-    <span>Comments</span>
-      {% for comment in post.comments %}
-        <p class="article-content">
-            {{ comment.content }}
-        </p>
+  </div>
+  <div class="full-block small padding-top-10">
+      <div class="float-left " style="font-weight: bold" >Comments</div>
+      <div class="float-right">
+          <a href="{% url 'post-comment-create' post_id=post.id %}">Add</a>
+      </div>
+  </div>
+  <br>
+  {% if post.comments.all  %}
+    <div class="full-block padding-top-10">
+      {% for comment in post.comments.all %}
+        {% include 'blog/comment_detail.html' with comment=comment editable=True %}
       {% endfor %}
-    {% endif %}
+    </div>
+  {% endif %}
   </div>
 </article>

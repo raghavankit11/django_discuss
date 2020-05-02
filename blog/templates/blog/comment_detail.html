@@ -1,0 +1,25 @@
+<div class="float-left full-block padding-top-20 border-top">
+    <div class="small float-left full-block">
+        <div class="float-left">
+        {% if comment.anonymous %}
+            <img class="rounded-circle comment-img" src="/media/profile_pics/anonymous.png">
+            Anonymous User
+        {% else %}
+            <img class="rounded-circle comment-img" src="{{ comment.author.profile.image.url }}">
+            <a class="mr-2" href="{% url 'user-posts' comment.author.username %}">{{ post.author }}</a>
+        {% endif %}
+        </div>
+        <div class="float-right">
+            <small class="text-muted" styl    e="float:right;">{{ comment.date_posted|date:"F d, Y P" }}</small>
+        </div>
+    </div>
+    {% if comment.author == user and editable == True %}
+    <div class="float-left full-block small">
+          <div>
+            <a style="color:orange;" href="{% url 'comment-update' comment.id %}">Edit</a>
+            <a style="color:red;margin-left: 10px;" href="{% url 'comment-delete' comment.id %}">Delete</a>
+          </div>
+    </div>
+    {% endif %}
+    <p class="small">{{ comment.content }}</p>
+</div>
