@@ -11,7 +11,7 @@
         {% else %}
             <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
         {% endif %}
-      <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+      <small class="text-muted" style="float:right;">{{ post.date_posted|date:"F d, Y P" }}</small>
       {% if post.author == user and editable == True %}
           <div>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
