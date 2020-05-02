@@ -6,7 +6,7 @@
             Anonymous User
         {% else %}
             <img class="rounded-circle comment-img" src="{{ comment.author.profile.image.url }}">
-            <a class="mr-2" href="{% url 'user-posts' comment.author.username %}">{{ post.author }}</a>
+            <a class="mr-2" href="{% url 'user-posts' comment.author.username %}">{{ comment.author }}</a>
         {% endif %}
         </div>
         <div class="float-right">
