@@ -25,18 +25,25 @@
   </div>
   <div class="full-block small padding-top-10">
       <div class="float-left " style="font-weight: bold">Comments</div>
+      {% if user.is_authenticated %}
       <div class="float-left " style="font-weight: bold;margin-left:20px;">
-        <a href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
-        <a href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
+        <a id="subscribe_{{ post.id }}" href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
+        <a id="unsubscribe_{{ post.id }}" href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
       </div>
-      <div class="float-left" style="margin-left:10px;">
-        {% for s in post.subscriptions.all   %}
-            {{s.user}}
-        {% endfor %}
-      </div>
+
+{#      <div class="float-left" style="margin-left:10px;">#}
+{#      xxx{% subscribed_to_users post user %}yyyy#}
+{##}
+{#      aaaa{{ post.is_user_subscribed }}bbbbbbbbb#}
+{#        {% for s in post.subscriptions.all   %}#}
+{#            {{s.user}}#}
+{#        {% endfor %}#}
+{#      </div>#}
+
       <div class="float-right">
           <a href="{% url 'post-comment-create' post_id=post.id %}">Add</a>
       </div>
+      {% endif %}
   </div>
   <br>
   {% if post.comments.all  %}
@@ -60,7 +67,12 @@
             data: {  csrfmiddlewaretoken: csrfToken, //django needs this
                      data_item: {'post_id':postId}},
             timeout:0,
-            success: function(data){alert(data.result);}
+            success: function(data){
+                if(data.result == true) {
+                    $('#subscribe_' + postId).hide()
+                    $('#unsubscribe_' + postId).show()
+                }
+            }
         });
     }
 
@@ -74,7 +86,12 @@
             data: {  csrfmiddlewaretoken: csrfToken, //django needs this
                      data_item: {'post_id':postId}},
             timeout:0,
-            success: function(data){alert(data.result);}
+            success: function(data){
+                if(data.result == true) {
+                    $('#subscribe_' + postId).show()
+                    $('#unsubscribe_' + postId).hide()
+                }
+            }
         });
     }
 </script>

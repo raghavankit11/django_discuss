@@ -8,7 +8,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Post, Comment, Subscription
+from .models import Post, Comment, Subscription, Notification
 
 
 def home(request):
@@ -25,6 +25,14 @@ class PostListView(ListView):
     ordering = ['-date_posted']
     paginate_by = 5
 
+    def get_queryset(self):
+        user = self.request.user
+        posts = Post.objects
+        for p in posts.all():
+            p.is_user_subscribed = p.subscriptions.filter(user__id__exact=user.id).exists()
+
+        return posts.order_by('-date_posted').all()
+
 
 class UserPostListView(ListView):
     model = Post
@@ -33,8 +41,12 @@ class UserPostListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user).order_by('-date_posted')
+        user = self.request.user
+        posts = Post.objects.filter(author=user).order_by('-date_posted')
+        for p in posts.all():
+            p.is_user_subscribed = p.subscriptions.filter(user__id__exact=user.id).exists()
+
+        return posts
 
 
 # region Post - Views
@@ -42,6 +54,17 @@ class UserPostListView(ListView):
 
 class PostDetailView(DetailView):
     model = Post
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        user = self.request.user
+        is_user_subscribed = obj.subscriptions.filter(user__id__exact=user.id).exists()
+        context.update({
+            'is_user_subscribed': is_user_subscribed
+        })
+        return context
+
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -185,3 +208,23 @@ def unsubscribe_post(request, post_id):
         'result': is_deleted
     }
     return JsonResponse(data)
+
+
+def user_notifications_get(request, username):
+    user = request.user
+
+    nn = Notification.objects.filter(subscription__user=user)
+
+    result = []
+    for n in nn:
+        user_notification = {'comment_id': n.comment.id,
+                             'comment_text': n.comment.content,
+                             'username': n.comment.author.username,
+                             'post_title': n.comment.post.title,
+                             'posted_on': n.comment.date_posted}
+        result.append(user_notification)
+
+    data ={'result': result}
+    final = JsonResponse(data, safe=False)
+
+    return final

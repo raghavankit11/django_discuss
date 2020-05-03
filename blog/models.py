@@ -18,12 +18,7 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
 
-    @property
-    def is_subscribed_to_user2(self, user):
-        is_subscribed = self.subscriptions.filter(user__exact=user).exists()
-        return is_subscribed
-
-    @register.filter
+    @register.simple_tag
     def subscribed_to_users(self, user):
         users = self.subscriptions.filter(user__exact=user)
         return users
@@ -48,4 +43,6 @@ class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
 
 
-
+class Notification(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='notifications')
+    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='notifications')
