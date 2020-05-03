@@ -1,0 +1,14 @@
+<div class="full-block border-top" style="padding:5px 0 5px 0">
+    <div class="small full-block">
+        {% if notification.comment.anonymous %}
+            <img class="rounded-circle notification-img" src="/media/profile_pics/anonymous.png">
+            Anonymous User
+        {% else %}
+            <img class="rounded-circle notification-img" src="{{ notification.comment.author.profile.image.url }}">
+            <a class="mr-2" style="margin-right:1px !important;" href="{% url 'user-posts' notification.comment.author.username %}">{{ notification.comment.author }}</a>
+        {% endif %}
+            commented at   <small class="text-muted">{{ notification.comment.date_posted|date:"F d, Y P" }}</small>
+            <br>
+            on <a class="mr-2" style="margin-right:1px !important;" href="{% url 'post-detail' notification.comment.post.id %}">{{ notification.comment.post.title }}</a>
+    </div>
+</div>

@@ -13,9 +13,6 @@ from .views import (
     CommentUpdateView,
     CommentDeleteView,
 
-    SubscriptionCreateView,
-    SubscriptionDetailView,
-    SubscriptionDeleteView,
 
     subscribe_post,
     unsubscribe_post,
@@ -36,10 +33,6 @@ urlpatterns = [
     path('comment/<int:pk>/', CommentDetailView.as_view(), name='comment-detail'),
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
-
-    path('post/<int:post_id>/subscription/new', SubscriptionCreateView.as_view(), name='post-subscription-create'),
-    path('subscription/<int:pk>/', SubscriptionDetailView.as_view(), name='subscription-detail'),
-    path('subscription/<int:pk>/delete/', SubscriptionDeleteView.as_view(), name='subscription-delete'),
 
     path('post/<int:post_id>/subscribe', subscribe_post, name='post-subscription'),
     path('post/<int:post_id>/unsubscribe', unsubscribe_post, name='post-unsubscription'),

@@ -147,33 +147,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # endregion
 
-# region - Subscriptions
-class SubscriptionDetailView(DetailView):
-    model = Subscription
 
-
-class SubscriptionCreateView(LoginRequiredMixin, CreateView):
-    model = Subscription
-    fields = '__all__'
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.post = Post.objects.get(pk=self.kwargs.get('post_id'))
-        return super().form_valid(form)
-
-
-class SubscriptionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Subscription
-    success_url = '/'
-
-    def test_func(self):
-        obj = self.get_object()
-        if self.request.user == obj.author:
-            return True
-        return False
-
-
-# endregion
 
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
@@ -181,6 +155,7 @@ def about(request):
 
 from django.http import JsonResponse
 
+# region - Subscription
 
 def subscribe_post(request, post_id):
     user = request.user
@@ -208,7 +183,7 @@ def unsubscribe_post(request, post_id):
         'result': is_deleted
     }
     return JsonResponse(data)
-
+# endregion
 
 def user_notifications_get(request, username):
     user = request.user

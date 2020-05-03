@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from blog.models import Notification
 from PIL import Image
+from django import template
+
+register = template.Library()
 
 
 class Profile(models.Model):
@@ -9,6 +13,10 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile'
+
+    @property
+    def notifications(self):
+        return Notification.objects.filter(subscription__user=self.user)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

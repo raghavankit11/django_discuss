@@ -93,6 +93,13 @@ a.article-title:hover {
   margin-right: 16px;
 }
 
+
+.notification-img {
+  height: 20px;
+  width: 20px;
+  margin-right: 5px;
+}
+
 .full-block{
   width:100%;
   display: block;
