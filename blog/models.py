@@ -50,5 +50,6 @@ class Subscription(models.Model):
 
 
 class Notification(models.Model):
+    type = models.CharField(max_length=10, default='created') #created, updated
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='notifications')
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='notifications')
