@@ -5,7 +5,7 @@ from .models import Comment, Notification, Subscription
 
 
 @receiver(post_save, sender=Comment)
-def create_profile(sender, instance, created, **kwargs):
+def create_notifications(sender, instance, created, **kwargs):
     if created:
         comment = instance
         subscriptions = Subscription.objects.filter(post__id__exact=comment.post.id)
