@@ -3,6 +3,9 @@ from django.template.defaultfilters import register
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django import template
+
+register = template.Library()
 
 
 class Post(models.Model):
@@ -12,16 +15,19 @@ class Post(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    is_user_subscribed = False
+    is_user_subscribed_not = not is_user_subscribed
+
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
 
-    @register.simple_tag
-    def subscribed_to_users(self, user):
-        users = self.subscriptions.filter(user__exact=user)
-        return users
+    # @register.tag
+    # def is_subscribed_to_user(self, user):
+    #     is_subscribed = self.subscriptions.filter(user__exact=user).exists()
+    #     return is_subscribed
 
 
 class Comment(models.Model):

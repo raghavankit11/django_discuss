@@ -27,18 +27,9 @@
       <div class="float-left " style="font-weight: bold">Comments</div>
       {% if user.is_authenticated %}
       <div class="float-left " style="font-weight: bold;margin-left:20px;">
-        <a id="subscribe_{{ post.id }}" href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
-        <a id="unsubscribe_{{ post.id }}" href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
+        <a id="subscribe_{{ post.id }}" class="display_{{ post.is_user_subscribed_not }}"  href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
+        <a id="unsubscribe_{{ post.id }}" class="display_{{ post.is_user_subscribed }}" href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
       </div>
-
-{#      <div class="float-left" style="margin-left:10px;">#}
-{#      xxx{% subscribed_to_users post user %}yyyy#}
-{##}
-{#      aaaa{{ post.is_user_subscribed }}bbbbbbbbb#}
-{#        {% for s in post.subscriptions.all   %}#}
-{#            {{s.user}}#}
-{#        {% endfor %}#}
-{#      </div>#}
 
       <div class="float-right">
           <a href="{% url 'post-comment-create' post_id=post.id %}">Add</a>
@@ -59,10 +50,10 @@
 <script type="application/javascript">
     function subscribeMe(postId, csrfToken)
     {
-        subscriptionUrl = "/post/" + postId +"/subscribe";
+        url = "/post/" + postId +"/subscribe";
         //console.info('subscriptionUrl', subscriptionUrl);
         $.ajax({
-            url: subscriptionUrl,
+            url: url,
             type: "POST",
             data: {  csrfmiddlewaretoken: csrfToken, //django needs this
                      data_item: {'post_id':postId}},
@@ -78,10 +69,9 @@
 
     function unSubscribeMe(postId, csrfToken)
     {
-        subscriptionUrl = "/post/" + postId +"/unsubscribe";
-
+        url = "/post/" + postId +"/unsubscribe";
         $.ajax({
-            url: subscriptionUrl,
+            url: url,
             type: "POST",
             data: {  csrfmiddlewaretoken: csrfToken, //django needs this
                      data_item: {'post_id':postId}},

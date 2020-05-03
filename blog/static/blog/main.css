@@ -113,3 +113,10 @@ a.article-title:hover {
 .padding-top-10{
   padding-top: 10px;
 }
+
+.display_True{
+  display:inherit;
+}
+.display_False{
+  display:None ;
+}

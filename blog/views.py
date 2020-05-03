@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.views.generic import (
     ListView,
     DetailView,
@@ -27,11 +28,12 @@ class PostListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        posts = Post.objects
-        for p in posts.all():
+        posts = Post.objects.order_by('-date_posted').all()
+        for p in posts:
             p.is_user_subscribed = p.subscriptions.filter(user__id__exact=user.id).exists()
+            p.is_user_subscribed_not = not p.is_user_subscribed
 
-        return posts.order_by('-date_posted').all()
+        return posts
 
 
 class UserPostListView(ListView):
@@ -42,9 +44,10 @@ class UserPostListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        posts = Post.objects.filter(author=user).order_by('-date_posted')
-        for p in posts.all():
+        posts = Post.objects.filter(author=user).order_by('-date_posted').all()
+        for p in posts:
             p.is_user_subscribed = p.subscriptions.filter(user__id__exact=user.id).exists()
+            p.is_user_subscribed_not = not p.is_user_subscribed
 
         return posts
 
@@ -55,16 +58,12 @@ class UserPostListView(ListView):
 class PostDetailView(DetailView):
     model = Post
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        obj = self.get_object()
+    def get_object(self, queryset=None):
+        obj = super(PostDetailView, self).get_object()
         user = self.request.user
-        is_user_subscribed = obj.subscriptions.filter(user__id__exact=user.id).exists()
-        context.update({
-            'is_user_subscribed': is_user_subscribed
-        })
-        return context
-
+        obj.is_user_subscribed = obj.subscriptions.filter(user__id__exact=user.id).exists()
+        obj.is_user_subscribed_not = not obj.is_user_subscribed
+        return obj
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -148,12 +147,9 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # endregion
 
 
-
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
 
-
-from django.http import JsonResponse
 
 # region - Subscription
 
@@ -161,9 +157,13 @@ def subscribe_post(request, post_id):
     user = request.user
     post = Post.objects.get(pk=post_id)
 
-    s = Subscription(user=user, post=post)  # Creating Like Object
-    s.save()  # saving it to store in database
-    is_saved = Subscription.objects.filter(user__id__exact=user.id, post__id__exact=post.id).exists()
+    is_already_subscribed = Subscription.objects.filter(user__id__exact=user.id, post__id__exact=post.id).exists()
+    if not is_already_subscribed:
+        s = Subscription(user=user, post=post)  # Creating Like Object
+        s.save()  # saving it to store in database
+        is_saved = Subscription.objects.filter(user__id__exact=user.id, post__id__exact=post.id).exists()
+    else:
+        is_saved = True
 
     data = {
         'result': is_saved
@@ -183,6 +183,8 @@ def unsubscribe_post(request, post_id):
         'result': is_deleted
     }
     return JsonResponse(data)
+
+
 # endregion
 
 def user_notifications_get(request, username):
@@ -199,7 +201,7 @@ def user_notifications_get(request, username):
                              'posted_on': n.comment.date_posted}
         result.append(user_notification)
 
-    data ={'result': result}
+    data = {'result': result}
     final = JsonResponse(data, safe=False)
 
     return final
