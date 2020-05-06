@@ -9,7 +9,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Post, Comment, Subscription, Notification
+from .models import Post, Comment, Subscription, Notification, TAG_CHOICES, Tag
 
 
 def home(request):
@@ -205,3 +205,40 @@ def user_notifications_get(request, username):
     final = JsonResponse(data, safe=False)
 
     return final
+
+# region - Tags
+
+
+def get_tag_choices(request):
+    return JsonResponse(TAG_CHOICES, safe=False)
+
+
+def post_tag_save(request, post_id):
+    user = request.user
+    post = Post.objects.get(pk=post_id)
+    choice = request.POST.get('data_item[choice]')
+
+    is_already_tagged = Tag.objects.filter(post__id__exact=post.id, choice__exact=choice).exists()
+    if not is_already_tagged:
+        t = Tag(choice=choice, post=post)  # Creating Like Object
+        t.save()  # saving it to store in database
+        is_saved = Tag.objects.filter(post__id__exact=post.id, choice__exact=choice).exists()
+    else:
+        is_saved = True
+
+    data = {
+        'result': is_saved
+    }
+    return JsonResponse(data)
+
+
+def tag_delete(request, tag_id):
+    t = Tag.objects.get(pk=tag_id)
+    t.delete()
+    is_deleted = not Tag.objects.filter(pk=tag_id).exists()
+
+    data = {
+        'result': is_deleted
+    }
+    return JsonResponse(data)
+# endregion

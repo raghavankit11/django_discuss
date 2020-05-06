@@ -23,6 +23,31 @@
     <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
     <p class="article-content">{{ post.content }}</p>
   </div>
+  <div class="full-block small">
+      <div class="">
+          <a href="javascript:$('#div_tag_{{ post.id }}').show()">Add Tag</a>
+      {% if post.tags.all %}
+          <div class="margin-top-10">
+          {% for t in post.tags.all %}
+              <span id="tag_{{ post.id }}_{{ t.id }}" style="border: solid 1px grey;padding:0px 5px 0px 5px;" class="margin-right-20">
+                {{ t.choice }} <a class="margin-left-5" href="javascript:delete_tag('{{ post.id }}', '{{ t.id }}', '{{ csrf_token }}')" title="Remove Tag">x</a>
+              </span>
+          {% endfor %}
+          </div>
+      {% endif %}
+          <div id="div_tag_{{ post.id }}" class="display_False margin-top-10">
+              <select id="tag_{{ post.id }}" class="margin-right-10">
+                  <option value="#Financial">#Financial</option>
+                  <option value="#Political">#Political</option>
+                  <option value="#Religious">#Religious</option>
+                  <option value="#Offensive">#Offensive</option>
+                  <option value="#Funny">#Funny</option>
+              </select>
+              <a href="javascript:save_tag('{{ post.id }}', '{{ csrf_token }}')" class="margin-right-10">Save Tag</a>
+              <a href="javascript:$('#div_tag_{{ post.id }}').hide()" class="margin-right-10">Cancel</a>
+          </div>
+      </div>
+  </div>
   <div class="full-block small padding-top-10">
       <div class="float-left " style="font-weight: bold">Comments</div>
       {% if user.is_authenticated %}
@@ -32,7 +57,7 @@
       </div>
 
       <div class="float-right">
-          <a href="{% url 'post-comment-create' post_id=post.id %}">Add</a>
+          <a href="{% url 'post-comment-create' post_id=post.id %}">Add Comment</a>
       </div>
       {% endif %}
   </div>
@@ -48,6 +73,32 @@
 
 </article>
 <script type="application/javascript">
+    /*
+    var tag_choices = null;
+
+    $(document).ready(function () {
+        if(tag_choices == null)
+            fetch_tag_choices('{{ csrf_token }}');
+        alert(tag_choices);
+    });
+
+    function fetch_tag_choices(csrfToken)
+    {
+        url = "/tags";
+        //console.info('subscriptionUrl', subscriptionUrl);
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {  csrfmiddlewaretoken: csrfToken //django needs this
+                  },
+            timeout:0,
+            success: function(data){
+                tag_choices = data;
+            }
+        });
+    }
+    */
+
     function subscribeMe(postId, csrfToken)
     {
         url = "/post/" + postId +"/subscribe";
@@ -80,6 +131,44 @@
                 if(data.result == true) {
                     $('#subscribe_' + postId).show()
                     $('#unsubscribe_' + postId).hide()
+                }
+            }
+        });
+    }
+
+    function save_tag(postId, csrfToken)
+    {
+        let selectedTagChoice = $('#tag_' + postId).val();
+        let url = "/post/" + postId +"/tags/new";
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {  csrfmiddlewaretoken: csrfToken, //django needs this
+                     data_item: {'choice':selectedTagChoice}},
+            timeout:0,
+            success: function(data){
+                if(data.result == true) {
+                    $('#div_tag_' + postId).hide()
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function delete_tag(postId, tagId, csrfToken)
+    {
+        let url = "/tags/" + tagId +"/delete";
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {  csrfmiddlewaretoken: csrfToken, //django needs this
+                  },
+            timeout:0,
+            success: function(data){
+                if(data.result == true) {
+                    $('#tag_' + postId + '_' + tagId).hide()
                 }
             }
         });

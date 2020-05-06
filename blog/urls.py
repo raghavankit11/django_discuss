@@ -13,10 +13,13 @@ from .views import (
     CommentUpdateView,
     CommentDeleteView,
 
-
     subscribe_post,
     unsubscribe_post,
-    user_notifications_get
+    user_notifications_get,
+
+    get_tag_choices,
+    post_tag_save,
+    tag_delete
 )
 from . import views
 
@@ -36,6 +39,10 @@ urlpatterns = [
 
     path('post/<int:post_id>/subscribe', subscribe_post, name='post-subscription'),
     path('post/<int:post_id>/unsubscribe', unsubscribe_post, name='post-unsubscription'),
+
+    path('tags', get_tag_choices, name='tags'),
+    path('post/<int:post_id>/tags/new', post_tag_save, name='post-tag-create'),
+    path('tags/<int:tag_id>/delete', tag_delete, name='post-tag-delete'),
 
     path('about/', views.about, name='blog-about'),
 ]

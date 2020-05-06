@@ -50,6 +50,22 @@ class Subscription(models.Model):
 
 
 class Notification(models.Model):
-    type = models.CharField(max_length=10, default='created') #created, updated
+    type = models.CharField(max_length=10, default='created')  # created, updated
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='notifications')
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='notifications')
+
+
+TAG_CHOICES = [
+    ('#Financial', '#Financial'),
+    ('#Political', '#Political'),
+    ('#Religious', '#Religious'),
+    ('#Offensive', '#Offensive'),
+    ('#Funny', '#Funny'),
+]
+
+
+class Tag(models.Model):
+    choice = models.CharField(max_length=20, choices=TAG_CHOICES)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='tags')
+    # tagged_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tags')
+
