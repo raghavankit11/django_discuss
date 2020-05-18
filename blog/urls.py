@@ -19,7 +19,9 @@ from .views import (
 
     get_tag_choices,
     post_tag_save,
-    tag_delete
+    tag_delete,
+    #TagPostsView,
+TagPostsTemplateView
 )
 from . import views
 
@@ -43,6 +45,8 @@ urlpatterns = [
     path('tags', get_tag_choices, name='tags'),
     path('post/<int:post_id>/tags/new', post_tag_save, name='post-tag-create'),
     path('tags/<int:tag_id>/delete', tag_delete, name='post-tag-delete'),
+ #   path('tags/<str:tag_choice>/posts', TagPostsView.as_view(), name='tag-posts'),
+    path('tags/<path:tag_choices>/posts', TagPostsTemplateView.as_view(), name='tag-posts'),
 
     path('about/', views.about, name='blog-about'),
 ]

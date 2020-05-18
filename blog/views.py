@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -7,10 +8,11 @@ from django.views.generic import (
     DetailView,
     CreateView,
     UpdateView,
-    DeleteView
+    DeleteView,
+    TemplateView
 )
 from .models import Post, Comment, Subscription, Notification, TAG_CHOICES, Tag
-
+from .filters import remove_hash
 
 def home(request):
     context = {
@@ -206,6 +208,7 @@ def user_notifications_get(request, username):
 
     return final
 
+
 # region - Tags
 
 
@@ -241,4 +244,53 @@ def tag_delete(request, tag_id):
         'result': is_deleted
     }
     return JsonResponse(data)
+
+
+class TagPostsTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'blog/tag_posts.html'  # <app>/<model>_<viewtype>.html
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        choices = self.kwargs['tag_choices']
+
+        choices = choices.split('/')
+
+        posts = Post.objects.all()
+        for choice in choices:  # reli, #poli
+            tags = Tag.objects.filter(choice__exact='#' + choice).all()
+            posts = posts.filter(tags__in=[tag.id for tag in tags]).order_by('-date_posted').all()
+
+        remaining_choices = set()
+        for p in posts:
+            p.is_user_subscribed = p.subscriptions.filter(user__id__exact=self.request.user.id).exists()
+            p.is_user_subscribed_not = not p.is_user_subscribed
+            for t in p.tags.all():
+                if remove_hash(t.choice) not in choices:
+                    remaining_choices.add(t.choice)
+            #remaining_choices.append(list(map(lambda t: t.choice if remove_hash(t.choice) in choices else None, p.tags.all())))
+
+        page_size = 2
+        is_paginated = posts.count() > page_size
+        paginator = Paginator(posts, page_size)  # Show 25 contacts per page
+
+        page = 1
+        try:
+            page = self.request.GET['page']
+        except:
+            page = 1
+
+        try:
+            posts = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            posts = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            posts = paginator.page(paginator.num_pages)
+
+        return {'filtered_choices': choices,
+                'remaining_choices': remaining_choices,
+                'posts': posts,
+                'page_obj': posts,
+                'is_paginated': is_paginated}
+
 # endregion

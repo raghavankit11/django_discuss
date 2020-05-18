@@ -1,3 +1,4 @@
+{% load filters %}
 <article class="media content-section">
   {% if post.anonymous %}
     <img class="rounded-circle article-img" src="/media/profile_pics/anonymous.png">
@@ -30,7 +31,8 @@
           <div class="margin-top-10">
           {% for t in post.tags.all %}
               <span id="tag_{{ post.id }}_{{ t.id }}" style="border: solid 1px grey;padding:0px 5px 0px 5px;" class="margin-right-20">
-                {{ t.choice }} <a class="margin-left-5" href="javascript:delete_tag('{{ post.id }}', '{{ t.id }}', '{{ csrf_token }}')" title="Remove Tag">x</a>
+                  <a href="/tags/{{ t.choice|remove_hash }}/posts">{{ t.choice }}</a>
+                  <a class="margin-left-5" href="javascript:delete_tag('{{ post.id }}', '{{ t.id }}', '{{ csrf_token }}')" title="Remove Tag">x</a>
               </span>
           {% endfor %}
           </div>
@@ -52,8 +54,8 @@
       <div class="float-left " style="font-weight: bold">Comments</div>
       {% if user.is_authenticated %}
       <div class="float-left " style="font-weight: bold;margin-left:20px;">
-        <a id="subscribe_{{ post.id }}" class="display_{{ post.is_user_subscribed_not }}"  href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
-        <a id="unsubscribe_{{ post.id }}" class="display_{{ post.is_user_subscribed }}" href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
+        <a id="subscribe_{{ post.id }}" class="display_{{ post|is_user_subscribed:user.id|negate }}"  href="javascript:subscribeMe('{{ post.id }}', '{{ csrf_token }}')">Subscribe</a>
+        <a id="unsubscribe_{{ post.id }}" class="display_{{ post|is_user_subscribed:user.id }}" href="javascript:unSubscribeMe('{{ post.id }}', '{{ csrf_token }}')">Unsubscribe</a>
       </div>
 
       <div class="float-right">

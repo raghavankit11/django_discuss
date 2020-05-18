@@ -1,0 +1,16 @@
+{% extends "blog/base.html" %}
+{% load filters %}
+{% block content %}
+    <h1 class="mb-3"></h1>
+    {% for choice in filtered_choices %}
+        <a href="/tags/{{ filtered_choices|path_till_index:forloop.counter }}{{ choice|remove_hash }}/posts">#{{ choice }}</a>
+        {% if not forloop.last %}>>{% endif %}
+    {% endfor %}
+    ({{ page_obj.paginator.count }})
+    <br>
+    Remaining Choices:
+    {% for choice in remaining_choices %}
+        <a href="/tags/{{ filtered_choices|path }}/{{ choice|remove_hash }}/posts">{{ choice }}</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    {% include "blog/post_list.html"  with posts=posts%}
+{% endblock content %}
